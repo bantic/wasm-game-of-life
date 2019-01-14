@@ -1,10 +1,17 @@
 extern crate cfg_if;
 extern crate wasm_bindgen;
+extern crate web_sys;
 
 mod utils;
 
 use cfg_if::cfg_if;
 use wasm_bindgen::prelude::*;
+
+macro_rules! log {
+  ( $( $t:tt )* ) => {
+    web_sys::console::log_1(&format!( $( $t )* ).into());
+  };
+}
 
 cfg_if! {
     // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -52,6 +59,17 @@ impl Universe {
     }
     count
   }
+
+  pub fn get_cells(&self) -> &[Cell] {
+    &self.cells
+  }
+
+  pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+    for (row, col) in cells.iter().cloned() {
+      let idx = self.get_index(row, col);
+      self.cells[idx] = Cell::Alive;
+    }
+  }
 }
 
 #[wasm_bindgen]
@@ -90,6 +108,20 @@ impl Universe {
   pub fn cells(&self) -> *const Cell {
     self.cells.as_ptr()
   }
+
+  pub fn set_height(&mut self, height: u32) {
+    self.height = height;
+    self.cells = (0..(self.width * height))
+      .map({ |_i| Cell::Dead })
+      .collect();
+  }
+
+  pub fn set_width(&mut self, width: u32) {
+    self.width = width;
+    self.cells = (0..(self.height * width))
+      .map({ |_i| Cell::Dead })
+      .collect();
+  }
 }
 
 use std::fmt;
@@ -111,6 +143,7 @@ impl fmt::Display for Universe {
 #[wasm_bindgen]
 impl Universe {
   pub fn new() -> Universe {
+    utils::set_panic_hook();
     let width = 64;
     let height = 64;
     let cells = (0..width * height)

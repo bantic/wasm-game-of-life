@@ -23,7 +23,6 @@ cfg_if! {
     }
 }
 
-#[wasm_bindgen]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Cell {
@@ -40,7 +39,6 @@ impl Cell {
   }
 }
 
-#[wasm_bindgen]
 pub struct Universe {
   width: u32,
   height: u32,
@@ -110,7 +108,6 @@ impl Universe {
   }
 }
 
-#[wasm_bindgen]
 impl Universe {
   pub fn tick(&mut self) {
     let mut next = self.cells.clone();
@@ -183,7 +180,6 @@ impl fmt::Display for Universe {
   }
 }
 
-#[wasm_bindgen]
 impl Universe {
   pub fn new() -> Universe {
     utils::set_panic_hook();
